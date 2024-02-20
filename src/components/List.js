@@ -1,36 +1,50 @@
-import React, { useState, useEffect ,useContext} from "react";
-import axios from "axios";
-import { ContextState } from "../globals/Context";
+import React, { useReducer, useCallback } from "react";
 
+function List({userData}) {
 
-function List() {
-  const [persons, setPersons] = useState([]);
-  const {state, dispatch} = useContext(ContextState);
- 
+  userData = [
+    {
+      name: "Sheldon",
+      email: "sheldoncooper@gmail.com",
+      age: 24,
+    },
+    {
+      name: "Federer",
+      email: "rodgerfederer@gmail.com",
+      age: 35,
+    },
+    {
+      name: "Ronald",
+      email: "ronaldo@gmail.com",
+      age: 28,
+    },
+    {
+      name: "Wayne",
+      email: "williamwayne@gmail.com",
+      age: 30,
+    },
+  ];
 
-  useEffect(() => {
-    
-    fetchData();
-  }, []);
+  const MemoizedListItem = React.memo(List);
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(
-        "https://mocki.io/v1/d4867d8b-b5d5-4a48-a4ab-79131b5809b8"
-      );
-      setPersons(response.data);
-      console.log("Data....", response.data);
-    } catch (error) {
-      console.log("error", error);
+  function ItemList() {
+    const handleClick = useCallback(
+      itemId => {
+        console.log(`Item ${itemId} clicked`);
+      },
+      []
+    );
+
+  const reducerMethod = (persons, action) => {
+    switch (action.type) {
+      case "delete":
+        return persons.filter((_, index) => index !== action.index);
+
+      default:
+        return persons;
     }
   };
-
-  const deletePerson = (id) => {
-    dispatch({
-      type: "DELETE_PERSON",
-      data: { id }
-    });
-  };
+  const [persons, dispatch] = useReducer(reducerMethod, userData);
 
   return (
     <div className="container">
@@ -40,23 +54,30 @@ function List() {
           <tr>
             <th>S.No</th>
             <th>Name</th>
-            <th>City</th>
+            <th>Email</th>
+            <th>Age</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
           {persons.map((person, index) => {
             return (
+              <MemoizedListItem>
               <tr key={index}>
                 <td>{index + 1}</td>
                 <td>{person.name}</td>
-                <td>{person.city}</td>
+                <td>{person.email}</td>
+                <td>{person.age}</td>
                 <td>
-                <button onClick={() => deletePerson(person.id)}>
-                 
-                  Delete
-                </button>
-              </td>
+                  <button className="bg-info " onClick={() => dispatch({ type: "delete", index })}>
+                    DELETE
+                  </button>
+                </td>
+                <li>
+      <button onClick={() => handleClick(index)}>Click me</button>
+    </li>
               </tr>
+              </MemoizedListItem>
             );
           })}
         </tbody>
@@ -64,5 +85,5 @@ function List() {
     </div>
   );
 }
-
+}
 export { List };

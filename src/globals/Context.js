@@ -1,29 +1,26 @@
-import React, { createContext, useReducer } from "react";
-
+import React, { useReducer, createContext } from "react";
 export const ContextState = createContext();
 
-const reducer = (state, action) => {
+const initialState = localStorage.getItem("users");
+console.log("Initialsatte...", initialState);
+
+console.log("UserData:::::",this.userData);
+
+const reducerMethod = (persons, action) => {
   switch (action.type) {
-    case "ADD_PERSON":
-      return [...state, action.data];
-    case "DELETE_PERSON":
-      return state.filter((person) => person.id !== action.data.id);
-    case "EDIT_PERSON":
-      return [
-        ...state.filter((person) => person.id !== action.data.id),
-        action.data,
-      ];
+    case "delete":
+      return persons.filter((_, index) => index !== action.index);
 
     default:
-      break;
+      return persons;
   }
 };
 
-export const Provider = ({ children }) => {
-  const [person, dispatch] = useReducer(reducer, []);
+export const ContextProvider = ({ children }) => {
+  const [persons, dispatch] = useReducer(reducerMethod, initialState);
 
   return (
-    <ContextState.Provider value={[person, dispatch]}>
+    <ContextState.Provider value={[persons, dispatch]}>
       {children}
     </ContextState.Provider>
   );
